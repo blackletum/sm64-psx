@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -z "$MANAGER" ] || ! which $MANAGER; then
 	if which docker 2>/dev/null; then
