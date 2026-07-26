@@ -82,8 +82,6 @@ INCLUDE_DIRS := include $(BUILD_DIR) $(BUILD_DIR)/include src . include/libc ps1
 # SAFE_GTE: inserts nops before GTE commands
 ifeq ($(SAFE),1)
 	DEFINES += NO_SCRATCHPAD=1 NO_KERNEL_RAM=1 BIG_RAM=1 SAFE_GTE=1
-else ifeq ($(DEV),1)
-	DEFINES += BIG_RAM=1
 endif
 
 ifeq ($(SERIAL),1)
@@ -158,24 +156,21 @@ TARGET_CFLAGS += -free -fira-loop-pressure -fpredictive-commoning -fsched-pressu
 
 ifeq ($(SAFE),1)
 	TARGET_CFLAGS += -fsanitize=unreachable,bounds-strict,pointer-overflow -UNDEBUG
-else ifeq ($(DEV),1)
+else ifeq ($(DEBUG),1)
 	TARGET_CFLAGS += -fsanitize=unreachable,bounds-strict,pointer-overflow -UNDEBUG
 else
 	TARGET_CFLAGS += -DNDEBUG
 endif
 
-ifeq ($(DEV),1)
-	TARGET_CFLAGS += -Og
-endif
-
 # C compiler options
-CFLAGS := -std=gnu2x --embed-dir=$(BUILD_DIR) $(TARGET_CFLAGS) $(if $(filter 1,$(SAFE) $(DEV)),-G8,-G32)
-ifeq ($(DEV),1)
-	CFLAGS += -fno-lto
-else
+CFLAGS := -std=gnu2x --embed-dir=$(BUILD_DIR) $(TARGET_CFLAGS) $(if $(filter 1,$(SAFE) $(DEBUG)),-G8,-G32)
+# can't disable lto because then it just doesn't optimize enough to fit in ram
+#ifeq ($(DEBUG),1)
+#	CFLAGS += -fno-lto
+#else
 	$(shell mkdir -p "$(BUILD_DIR)/lto_incremental")
 	CFLAGS += -flto -fno-fat-lto-objects -fwhole-program -flto-incremental=$(BUILD_DIR)/lto_incremental
-endif
+#endif
 EXT_CFLAGS := -std=gnu2x $(TARGET_CFLAGS) -G0 -fno-lto
 
 CFLAGS_FILE := $(BUILD_DIR)/cflags.txt

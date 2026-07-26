@@ -90,8 +90,8 @@ extern u8 _texture_data_segment[];
 UNUSED extern u8 _texture_data_segment_end[];
 
 [[gnu::noinline]] void gfx_load_texture(void* tex_ptr) {
+	assert(tex_ptr);
 	TexHeader* tex_header = tex_ptr;
-	assert(tex_header);
 	if(((u32) tex_header->window_cmd >> 24) == ((u32) GP0_CMD_TEXWINDOW >> 24)) {
 		return;
 	}

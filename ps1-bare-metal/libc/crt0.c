@@ -80,10 +80,10 @@ int _start(int argc, const char **argv) {
 	);
 #endif
 
-#ifdef BIG_RAM
-	__asm__ volatile("la $sp, 0x807ffff0\n");
+#ifdef RAM_16MB
+	__asm__ volatile("la $sp, 0x80fffff0\n");
 #else
-	__asm__ volatile("la $sp, 0x801ffff0\n");
+	__asm__ volatile("la $sp, 0x807ffff0\n");
 #endif
 
 	// clear the scratchpad

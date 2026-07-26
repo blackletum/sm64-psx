@@ -332,7 +332,9 @@ static int max3(int x, int y, int z) {
 			}
 			case (u8) G_SETTIMG: {
 				compilation_tex_header = segmented_to_virtual((u8*) cmd->words.w1);
-				gfx_load_texture(compilation_tex_header);
+				if(compilation_tex_header) {
+					gfx_load_texture(compilation_tex_header);
+				}
 				*(out++) = DL_PACK_OP(DL_CMD_TEX) | DL_PACK_PTR(compilation_tex_header);
 				break;
 			}
