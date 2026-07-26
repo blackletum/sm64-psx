@@ -2,13 +2,13 @@
 
 // a compact, fast memset for PS1
 
-.set dst, $a0
-.set value, $a1
-.set size, $a2
-.set target, $v0
-.set aligned_target, $v1
-.set alignment, $t0
-.set tmp, $t1
+#define dst $a0
+#define value $a1
+#define size $a2
+#define target $v0
+#define aligned_target $v1
+#define alignment $t0
+#define tmp $t1
 
 .section .text.memset, "ax", @progbits
 .type memset, @function

@@ -5,7 +5,6 @@
 #include <ps1/gpucmd.h>
 #include <ps1/gpu.h>
 #include <assert.h>
-#include <stdio.h>
 #include <game/memory.h>
 
 // VRAM is composed of two rows of 16 64x256 pages, 32 pages total

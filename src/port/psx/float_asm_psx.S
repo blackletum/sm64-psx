@@ -5,25 +5,26 @@
 .set nomacro
 .set noat
 
-.set abs0, $a2
-.set abs1, $a3
-.set leadingzeros, $t0
-.set signbit, $t1
-.set sig1withouthiddenzero, $t2
-.set sig0, $t4
-.set sig1, $t5
-.set hiddenone, $t6
-.set exp0, $t7
-.set exp1, $t8
-.set inputsxor, $t9
-.set sig, $v1
-.set lzcs, $30
-.set lzcr, $31
+#define abs0 $6
+#define abs1 $7
+#define leadingzeros $8
+#define signbit $9
+#define sig1withouthiddenzero $10
+#define sig0 $12
+#define sig1 $13
+#define hiddenone $14
+#define exp0 $15
+#define exp1 $t8
+#define inputsxor $t9
+#define sig $v1
+#define lzcs $30
+#define lzcr $31
 
 // operation: q20.12 -> float
 // 3 cycles if a == 0
 // 16 cycles if a != 0
-.global qtof
+.section .text._float.qtof
+.weak qtof
 .balign 16
 qtof:
 	beqz $a0, .Lret0 // 0 is a special case because the math below can't make an exponent of 0
@@ -48,7 +49,8 @@ qtof:
 // 7 cycles if abs(a) < (1/4096)
 // 9 cycles if abs(a) >= (1/4096) && a is too large
 // 15 cycles if abs(a) >= (1/4096) && a isn't too large
-.global ftoq
+.section .text._float.ftoq
+.weak ftoq
 .balign 16
 ftoq:
 	// extract exponent
@@ -89,10 +91,9 @@ ftoq:
 // 35 cycles if a != 0 && b != 0 && sign(a) != sign(b) && abs(a) < abs(b)
 // ^ notably less than integer div instruction (36 cycles) (not counting call overhead)
 // for subtraction, add 2 cycles
-.global __addsf3, __subsf3
+.section .text._float.addsub
+.weak __addsf3, __subsf3
 .balign 16
-	nop
-	nop
 __subsf3:
 	lui signbit, 0x8000
 	xor $a1, $a1, signbit
@@ -159,7 +160,7 @@ __addsf3:
 	addiu exp0, exp0, 8 // GTE mfc2 delay slot
 	subu exp0, exp0, leadingzeros
 	sll exp0, exp0, 23
-	or $v0, $v0, exp0// insert it with sign bit
+	or $v0, $v0, exp0 // insert it with sign bit
 
 	// prepare the finalized significand
 	// sig << 1 << leadingzeros >> 9 so that the hidden 1 gets cleared
@@ -190,7 +191,8 @@ __addsf3:
 // 30 cycles if a0 != 0 && a1 != 0 && significand multiplication doesn't give 0
 // by some miracle, faster than addition? but it does sacrifice a little precision for that speed
 // there COULD be an optimization for powers of two, but the multu is fast enough that that would hurt speed
-.global __mulsf3
+.section .text._float.mul
+.weak __mulsf3
 .balign 16
 __mulsf3:
 	lui signbit, 0x8000
@@ -247,7 +249,8 @@ __mulsf3:
 // 18 cycles if a1 is a power of two
 // 57 cycles if a0 != 0 && a1 != 1
 // note: division by zero results in zero (we do not handle infs or nans in this house)
-.global __divsf3
+.section .text._float.div
+.weak __divsf3
 .balign 16
 __divsf3:
 	lui signbit, 0x8000
@@ -307,7 +310,8 @@ __divsf3:
 // 8 cycles if a0 != a1
 // fits in just 2 cache lines! :D
 // 0 and -0 will be treated as different
-.global __eqsf2, __nesf2, __ltsf2, __lesf2, __gtsf2, __gesf2
+.section .text._float.cmp
+.weak __eqsf2, __nesf2, __ltsf2, __lesf2, __gtsf2, __gesf2
 .balign 16
 __eqsf2: __nesf2: __ltsf2: __lesf2: __gtsf2: __gesf2:
 	// early return if they are equal

@@ -63,7 +63,7 @@ longjmp:
 
 //// Leading zero count intrinsics
 
-// libgcc provides two functions used internally by GCC to count the number of 
+// libgcc provides two functions used internally by GCC to count the number of
 // leading zeroes in a value, __clzsi2() (32-bit) and __clzdi2() (64-bit). We're
 // going to override them with smaller implementations that make use of the GTE's
 // LZCS/LZCR registers.

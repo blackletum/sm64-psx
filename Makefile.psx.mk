@@ -35,6 +35,7 @@ LEVEL_C_FILES        := $(foreach dir,$(LEVEL_DIRS),levels/$(dir)leveldata.c lev
 C_FILES              := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
 LIBC_C_FILES         := $(foreach dir,$(LIBC_SRC_DIRS),$(wildcard $(dir)/*.c))
 LIBC_S_FILES         := $(foreach dir,$(LIBC_SRC_DIRS),$(wildcard $(dir)/*.s))
+LIBC_SPP_FILES       := $(foreach dir,$(LIBC_SRC_DIRS),$(wildcard $(dir)/*.S))
 CXX_FILES            := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.cpp))
 S_FILES              := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.s))
 SPP_FILES            := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.S))
@@ -51,6 +52,7 @@ O_FILES := \
 	$(C_FILES:%.c=$(BUILD_DIR)/%.o) \
 	$(CXX_FILES:%.cpp=$(BUILD_DIR)/%.o) \
 	$(S_FILES:%.s=$(BUILD_DIR)/%.s.o) \
+	$(SPP_FILES:%.S=$(BUILD_DIR)/%.S.o) \
 	$(GENERATED_C_FILES:%.c=%.o)
 
 LEVEL_O_FILES := $(LEVEL_C_FILES:%.c=$(BUILD_DIR)/%.o)
@@ -59,9 +61,8 @@ GODDARD_O_FILES := $(GODDARD_C_FILES:%.c=$(BUILD_DIR)/%.o)
 
 LIBC_O_FILES := \
 	$(LIBC_C_FILES:%.c=$(BUILD_DIR)/%.o) \
-	$(LIBC_S_FILES:%.s=$(BUILD_DIR)/%.s.o)
-	#$(LIBC_C_FILES:%.c=$(BUILD_DIR)/%.libc.o) \
-	#$(LIBC_S_FILES:%.s=$(BUILD_DIR)/%.s.libc.o)
+	$(LIBC_S_FILES:%.s=$(BUILD_DIR)/%.s.o)\
+	$(LIBC_SPP_FILES:%.S=$(BUILD_DIR)/%.S.o)
 
 # Automatic dependency files
 DEP_FILES := $(O_FILES:.o=.d) $(LEVEL_O_FILES:.o=.d) $(GODDARD_O_FILES:.o=.d) $(LIBC_O_FILES:.o=.d)
@@ -183,7 +184,7 @@ ifneq ($(CFLAGS),$(file <$(CFLAGS_FILE)))
 	$(file >$(CFLAGS_FILE),$(CFLAGS))
 endif
 
-ASFLAGS := -O2 -march=r3000 -msoft-float
+ASFLAGS := -O2 -mabi=eabi -march=r3000 -msoft-float
 LDFLAGS := $(CFLAGS) -EL -Wl,-Map,$(BUILD_DIR)/sm64.map -Lps1-bare-metal -T$(BUILD_DIR)/executable.preprocessed.ld
 
 CPP      := $(CC) -E -x c
@@ -602,9 +603,15 @@ $(BUILD_DIR)/%.libc.o: %.c $(CFLAGS_FILE)
 # Assemble assembly code
 $(BUILD_DIR)/%.s.o: %.s $(CFLAGS_FILE)
 >	$(call print,Assembling:,$<,$@)
+>	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d $< -o $@
+$(BUILD_DIR)/%.S.o: %.S $(CFLAGS_FILE)
+>	$(call print,Assembling:,$<,$@)
 >	$(V)$(CPP) $(CPPFLAGS) $< -o $@.s
 >	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d $@.s -o $@
 $(BUILD_DIR)/%.s.libc.o: %.s $(CFLAGS_FILE)
+>	$(call print,Assembling:,$<,$@)
+>	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d $< -o $@
+$(BUILD_DIR)/%.S.libc.o: %.S $(CFLAGS_FILE)
 >	$(call print,Assembling:,$<,$@)
 >	$(V)$(CPP) $(CPPFLAGS) $< -o $@.s
 >	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d $@.s -o $@
