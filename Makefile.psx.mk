@@ -596,22 +596,12 @@ $(BUILD_DIR)/%.o2: $(BUILD_DIR)/%.processed.c $(TOOLS_DIR)/preprocess_graphics.p
 $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.c $(CFLAGS_FILE)
 >	$(call print,Compiling:,$<,$@)
 >	$(V)$(CC) -c $(CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d -o $@ $<
-$(BUILD_DIR)/%.libc.o: %.c $(CFLAGS_FILE)
->	$(call print,Compiling:,$<,$@)
->	$(V)$(CC) -c $(CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d -o $@ $<
 
 # Assemble assembly code
 $(BUILD_DIR)/%.s.o: %.s $(CFLAGS_FILE)
 >	$(call print,Assembling:,$<,$@)
 >	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d $< -o $@
 $(BUILD_DIR)/%.S.o: %.S $(CFLAGS_FILE)
->	$(call print,Assembling:,$<,$@)
->	$(V)$(CPP) $(CPPFLAGS) $< -o $@.s
->	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d $@.s -o $@
-$(BUILD_DIR)/%.s.libc.o: %.s $(CFLAGS_FILE)
->	$(call print,Assembling:,$<,$@)
->	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d $< -o $@
-$(BUILD_DIR)/%.S.libc.o: %.S $(CFLAGS_FILE)
 >	$(call print,Assembling:,$<,$@)
 >	$(V)$(CPP) $(CPPFLAGS) $< -o $@.s
 >	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d $@.s -o $@
