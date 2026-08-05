@@ -1,3 +1,5 @@
+> # Migrated to https://codeberg.org/malucart/sm64-psx! Go there instead!
+
 # Super Mario 64 (DualShock Version)
 
 - This is a fork of [the full decompilation of Super Mario 64 (J), (U), (E), and (SH)](https://github.com/n64decomp/sm64).
